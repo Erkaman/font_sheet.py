@@ -17,5 +17,8 @@ python font_sheet.py /Library/Fonts/Comic\ Sans\ MS.ttf out.png
 
 the script produces a font sheet named out.png: 
 
+![text](/images/out.png)
 
+
+As can be seen, the sheet has been properly padded, so that its sizes are powers of two(in this case, a 1024x1024 texture is created)
 
