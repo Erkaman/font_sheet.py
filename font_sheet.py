@@ -26,17 +26,28 @@ def delete_filelist(filelist):
     for f in filelist:
         os.remove(f)
 
-# now clean up all the temp files created.
-def cleanup(rowFiles, charFiles):
-    delete_filelist(rowFiles)
-    delete_filelist(charFiles)
-
 counter = 0
+temp_files = []
 
-def generateTempFile():
+# now clean up all the temp files created.
+def cleanup():
+    global temp_files
+    for f in temp_files:
+        os.remove(f)
+
+def generate_temp_file(prefix="temp", num=None):
     global counter
-    f =  "temp{0}.png".format(counter)
-    counter = counter + 1
+    global temp_files
+
+    if num is None:
+        f =  "{0}{1}.png".format(prefix, counter)
+        counter = counter + 1
+    else:
+        f =  "{0}{1}.png".format(prefix, num)
+
+    temp_files.append(f)
+
+
     return f
 
 # open a file. I have only tested this function on OS X,
@@ -56,7 +67,8 @@ def makePadRow():
     blankChar = makeChar(chr(32))
     padFiles = " ".join(list(itertools.repeat(blankChar, FONT_SHEET_COLS)))
     print "pad files: ", padFiles
-    pad_row = "pad_row.png"
+
+    pad_row = generate_temp_file("pad_row")
     command = base_convert +" +append {0} {1}".format(padFiles, pad_row)
     os.system(command)
     return pad_row
@@ -65,7 +77,7 @@ def makePadRow():
 def makeChar(char):
     global base_convert
 
-    outFile =  generateTempFile()
+    outFile =  generate_temp_file()
     # some characters will have to be escaped.
     if "@" == char:
         char = "\\@"
@@ -84,7 +96,8 @@ def makeChar(char):
 
 def makeRow(rowNum, files):
     global base_convert
-    outFile = "row{0}.png".format(rowNum)
+
+    outFile = generate_temp_file("row", rowNum)
 
 
     filesStr = ' '.join(files)
@@ -151,4 +164,4 @@ while current_height < desired_height:
 
 open_file(OUT_FILE)
 
-cleanup(rowFiles, charFiles)
+cleanup()
