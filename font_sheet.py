@@ -15,6 +15,7 @@ LETTER_HEIGHT = 64
 
 # the fontshoot is written to this file
 OUT_FILE = "out.png"
+FONT = ""
 
 # how characters are put per column in the sheet.
 FONT_SHEET_COLS = 16
@@ -38,6 +39,7 @@ def cleanup():
 def generate_temp_file(prefix="temp", num=None):
     global counter
     global temp_files
+    global FONT
 
     if num is None:
         f =  "{0}{1}.png".format(prefix, counter)
@@ -88,7 +90,7 @@ def makeChar(char):
     elif ord(char) == 92:
         char = "\\\\\\\\"
 
-    command = base_convert + '-font /Library/Fonts/Comic\ Sans\ MS.ttf   -size {0}x{1} -gravity center  label:"{2}" {3}'.format(LETTER_WIDTH, LETTER_HEIGHT, char, outFile)
+    command = base_convert + '-font "{0}"   -size {1}x{2} -gravity center  label:"{3}" {4}'.format(FONT, LETTER_WIDTH, LETTER_HEIGHT, char, outFile)
     log(command)
 
     os.system(command)
@@ -107,6 +109,16 @@ def makeRow(rowNum, files):
 
     os.system(command)
     return outFile
+
+
+if len(sys.argv) != 3:
+    log("Incorrect command line arguments. Accepted format is:")
+    log("font_sheet.py font.ttf output_file.png")
+    sys.exit(1)
+else:
+    OUT_FILE = sys.argv[2]
+    FONT = sys.argv[1]
+
 
 
 charFiles = []
@@ -155,7 +167,6 @@ desired_height = LETTER_HEIGHT * FONT_SHEET_COLS
 current_height = LETTER_HEIGHT * len(rowFiles)
 
 while current_height < desired_height:
-    global base_convert
 
     command = base_convert +" -append {0} {1} {2}".format(OUT_FILE, pad_row, OUT_FILE)
     log(command)
