@@ -20,5 +20,5 @@ the script produces a font sheet named out.png:
 ![text](/images/out.png)
 
 
-As can be seen, the sheet has been properly padded, so that its sizes are powers of two(in this case, a 1024x1024 texture is created). Also, the characters are ordered after ASCII. 
+As can be seen, the sheet has been properly padded so that its sizes are powers of two, so that it can efficiently be used in for example games(in this case, a 1024x1024 texture is created). Also, the characters are ordered after ASCII. 
 
