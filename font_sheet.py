@@ -7,6 +7,7 @@ import os
 import string
 import subprocess
 import sys
+import itertools
 
 # these are the sizes of the characters.
 LETTER_WIDTH = 64
@@ -48,7 +49,21 @@ def open_file(file):
     else:
         os.startfile(file)
 
+# transparent background
+base_convert = "convert -transparent white "
+
+def makePadRow():
+    blankChar = makeChar(chr(32))
+    padFiles = " ".join(list(itertools.repeat(blankChar, FONT_SHEET_COLS)))
+    print "pad files: ", padFiles
+    pad_row = "pad_row.png"
+    command = base_convert +" +append {0} {1}".format(padFiles, pad_row)
+    os.system(command)
+    return pad_row
+
+
 def makeChar(char):
+    global base_convert
 
     outFile =  generateTempFile()
     # some characters will have to be escaped.
@@ -61,19 +76,20 @@ def makeChar(char):
     elif ord(char) == 92:
         char = "\\\\\\\\"
 
-    command = 'convert -font /Library/Fonts/Comic\ Sans\ MS.ttf -background blue   -size {0}x{1} -gravity center  label:"{2}" {3}'.format(LETTER_WIDTH, LETTER_HEIGHT, char, outFile)
+    command = base_convert + '-font /Library/Fonts/Comic\ Sans\ MS.ttf   -size {0}x{1} -gravity center  label:"{2}" {3}'.format(LETTER_WIDTH, LETTER_HEIGHT, char, outFile)
     log(command)
 
     os.system(command)
     return outFile
 
 def makeRow(rowNum, files):
+    global base_convert
     outFile = "row{0}.png".format(rowNum)
 
 
     filesStr = ' '.join(files)
 
-    command = "convert +append {0} {1}".format(filesStr, outFile)
+    command = base_convert + " +append {0} {1}".format(filesStr, outFile)
     log(command)
 
     os.system(command)
@@ -111,7 +127,7 @@ for row in range(0, rows):
     rowFiles.append(rowFile)
 
 
-command = "convert -append {0} {1}".format(' '.join(rowFiles), OUT_FILE)
+command = base_convert + " -append {0} {1}".format(' '.join(rowFiles), OUT_FILE)
 log(command)
 os.system(command)
 
@@ -120,12 +136,15 @@ os.system(command)
 # so that its height is a power of two.
 blankChar = makeChar(chr(32))
 
+pad_row = makePadRow()
+
 desired_height = LETTER_HEIGHT * FONT_SHEET_COLS
 current_height = LETTER_HEIGHT * len(rowFiles)
 
 while current_height < desired_height:
+    global base_convert
 
-    command = "convert -append {0} {1} {2}".format(OUT_FILE, blankChar, OUT_FILE)
+    command = base_convert +" -append {0} {1} {2}".format(OUT_FILE, pad_row, OUT_FILE)
     log(command)
     os.system(command)
     current_height = current_height + LETTER_HEIGHT
